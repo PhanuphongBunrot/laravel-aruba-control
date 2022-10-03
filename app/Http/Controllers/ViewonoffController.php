@@ -69,9 +69,8 @@ class ViewonoffController extends Controller
         for ($go = 0; $go <  count($arr_ip); $go++) {
 
             if ($str_arr[$go] != null) {
-
-                if ($str_arr[$go] === $data[$go][0]) {
-
+                   
+             
                     $inser = $sta->insertMany([
                         [
                             'Max' => $data[$go][0],
@@ -83,7 +82,7 @@ class ViewonoffController extends Controller
                         ]
 
                     ]);
-                }
+                
             }
         }
 

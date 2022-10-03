@@ -76,7 +76,6 @@ class ViewipController extends Controller
             
             if ($str_arr[$go] != null) {
                 
-                  if($str_arr[$go] === $data[$go ][0]){
                  
                     $inser = $sta->insertMany([
                         [
@@ -88,7 +87,7 @@ class ViewipController extends Controller
                         ]
     
                     ]);
-                  }
+                
                 
                
             }       

@@ -11,7 +11,10 @@ class ViewipController extends Controller
     public function viewip()
     {
         error_reporting(E_ALL ^ E_NOTICE);
-
+        
+        $t = date_default_timezone_set('Asia/Bangkok');
+        $t = date('Y-m-d H:i:s');
+        
         $mon = new Mongo;
         $conn = $mon->iparuba->ipaps;
         $ip_db = $conn->find()->toArray();
@@ -29,16 +32,16 @@ class ViewipController extends Controller
             'Content-Type' => 'application/json;charset=UTF-8'
         ])
             ->withOptions(["verify" => false])
-            //->get('http://127.0.0.1:8000/api/ping');
-            ->get('http://127.0.0.1:8000/api/apistatus');
+            ->get('http://127.0.0.1:8000/api/ping');
+
         $ex = explode(" ", $response);
 
 
-        //$data = array_chunk($ex, 5);        
-        $data = array_chunk($ex, 6);
-        echo "<pre>";
-        print_r($data);
-        echo "</pre>";
+
+        $data = array_chunk($ex, 5);
+        // echo "<pre>";
+        // print_r($data);
+        // echo "</pre>";
 
         for ($i = 0; $i < count($data) - 1; $i++) {
 
@@ -51,7 +54,6 @@ class ViewipController extends Controller
                         'Status' => $data[$i][2],
                         'd/m/y' => $data[$i][3],
                         'time' => $data[$i][4],
-                        'ip' => $data[$i][5],
                     ]
 
                 ]);
@@ -67,7 +69,7 @@ class ViewipController extends Controller
         $str_arr = array_diff($arr_ip,$arr_sta);
        
 
-      
+       print_r($str_arr);
         
          for($go = 0 ; $go <  count($arr_ip) ; $go ++  ){
                 
@@ -83,7 +85,6 @@ class ViewipController extends Controller
                             'Status' => $data[$go][2],
                             'd/m/y' => $data[$go][3],
                             'time' => $data[$go][4],
-                            'ip' => $data[$go][5],
                         ]
     
                     ]);
@@ -94,11 +95,8 @@ class ViewipController extends Controller
            
       
          }
-     
+
          for ($j = 0; $j < count($data) - 1; $j++) {
-            
-            if($sta_view[$j]["ip"] != null ){
-                
               $updateResult = $sta->replaceOne( 
                 ['Max' => $data[$j][0], ],
                 [
@@ -107,14 +105,11 @@ class ViewipController extends Controller
                     'Status' => $data[$j][2],
                     'd/m/y' => $data[$j][3],
                     'time'=> $data[$j][4] ,
-                    'ip' =>$sta_view[$j]["ip"]
                 ]
               );
-    
-            }
-        }
-
-            return "success ";
+         }
+         
+         return "succsee".$t;
 
     }
 }

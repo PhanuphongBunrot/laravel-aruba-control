@@ -11,129 +11,105 @@ class ViewonoffController extends Controller
     public function view()
     {
         error_reporting(E_ALL ^ E_NOTICE);
+
+        $mon = new Mongo;
+        $conn = $mon->iparuba->ipaps;
+        $ip_db = $conn->find()->toArray();
+
+        $conn =  new Mongo;
+        $companydb  = $conn->iparuba;
+        $sta = $companydb->statustotals;
+
+        $mon = new Mongo;
+        $conn = $mon->iparuba->statustotals;
+        $sta_view = $conn->find()->toArray();
+
+
         $response = Http::withHeaders([
             'Content-Type' => 'application/json;charset=UTF-8'
         ])
             ->withOptions(["verify" => false])
-            ->get('http://192.168.207.239:82/api/toaps');
-        $resq = trim($response, '"');
-       
-        $ex = explode("/", $response);
+            //->get('http://127.0.0.1:8000/api/ping');
+            ->get('http://127.0.0.1:8000/api/apistatus');
+        $ex = explode(" ", $response);
+
+
+        //$data = array_chunk($ex, 5);        
+        $data = array_chunk($ex, 6);
+        // echo "<pre>";
+        // print_r($data);
+        // echo"</pre>";
+
+        for ($i = 0; $i < count($data) - 1; $i++) {
+
+            if (count($sta_view) == 0) {
+                $inser = $sta->insertMany([
+                    [
+                        'Max' => $data[$i][0],
+                        'Apname' => $data[$i][1],
+                        'Status' => $data[$i][2],
+                        'd/m/y' => $data[$i][3],
+                        'time' => $data[$i][4],
+                        'ip' => $data[$i][5],
+                    ]
+
+                ]);
+            }
+        }
+        for ($l = 0; $l < count($ip_db); $l++) {
+            $arr_ip[] = $ip_db[$l]['Max'];
+        }
+        for ($s = 0; $s < count($sta_view); $s++) {
+            $arr_sta[]   =   $sta_view[$s]['Max'];
+        }
+        
+        $str_arr = array_diff($arr_ip, $arr_sta);
+
+        
+        for ($go = 0; $go <  count($arr_ip); $go++) {
+
+            if ($str_arr[$go] != null) {
+
+                if ($str_arr[$go] === $data[$go][0]) {
+
+                    $inser = $sta->insertMany([
+                        [
+                            'Max' => $data[$go][0],
+                            'Apname' => $data[$go][1],
+                            'Status' => $data[$go][2],
+                            'd/m/y' => $data[$go][3],
+                            'time' => $data[$go][4],
+                            'ip' => $data[$go][5],
+                        ]
+
+                    ]);
+                }
+            }
+        }
+
       
-      
-        //$ex = array("34:8a:12:cc:b5:58","192.168.207.236","192.168.5.2");
-        $mon = new Mongo;
-        $conn = $mon->iparuba->ipaps;
-        $data = $conn->find()->toArray();
-        //-------------------------------------//
-        $conn =  new Mongo;
-        $companydb  = $conn->iparuba;
-        $empcollection = $companydb->ipaps;
-        //----------------------------------------//
-        $mon = new Mongo;
-        $conn = $mon->iparuba->ipaps;
-        $aps = $conn->find()->toArray();
-        //----------------------------------------//
-        $conn =  new Mongo;
-        $companydb  = $conn->iparuba;
-        $off = $companydb->offline;
-        //-------------------------------------//
-        $conn =  new Mongo;
-        $companydb  = $conn->iparuba;
-        $on = $companydb->online;
-        //-------------------------------------//
-                if (count($data) == 0) {
-                    for ($i = 0; $i < count($data); $i++) {
-                        $inser = $empcollection->insertMany([
-                            [
-                                'Max' => $data[$i]['Max'],
-                                'Apname' => 'ArubaAP',
-                                'S/N' => '--'
-                            ]
-
-                        ]);
-                    }
-                }
-                $toon[] = 0;
-                $tooff[] = 0;
-                $o = 0;
-                $f = 0;
-                $t = date_default_timezone_set('Asia/Bangkok');
-                $t = date('Y-m-d H:i:s');
-                $Y = date('Y');
-                $m = date('m');
-                $d = date('d');
-                $h = date('H');
-                $min = date('i');
-                
-
-                for ($i = 1; $i < count($ex); $i++) {
-                    if (count($data) == 0) {
-                        $inser = $empcollection->insertMany([
-                            [
-                                'Max' => $ex[$i],
-                                'Apname' => 'ArubaAP',
-                                'S/N' => '--'
-                            ]
-                        ]);
-                    }
-                }
-
-                for ($i = 0; $i < count($data); $i++) {
-                    $tyy[] = $data[$i]['Max'];
-                }
-
-                //print_r($tyy);
-                $arr = [];
-                $re = array_diff($ex, $tyy);
-                //print_r($re);
-
-                for ($x = 0; $x < count($ex); $x++) {
-                    //var_dump($re[$x]);
-                    if ($re[$x] != null) {
-                        $inser = $empcollection->insertMany([
-                            [
-                                'Max' => $re[$x],
-                                'Apname' => 'ArubaAP',
-                                'S/N' => '--'
-                            ]
-
-
-                        ]);
-                    }
-                }
-                //----------------------------------------------------------------------------
-                //print_r($ex);
-
-                for ($i = 1; $i < count($ex); $i++) {
-                    for ($y = 0; $y < count($data); $y++) {
-                        if ($ex[$i] === $data[$y]['Max']) {
-                            $a = 1;
-                        }
-                    }
-                    if ($a == 1) {
-                        $toon[] = $o = $o + 1;
-                    
-
-                       echo ($ex[$i] . " " . $data[$i]['Apname'] . " Online" . " " . $d . "/" . $m . "/" . $Y . " " . $h . ":" . $min  . " ");
-                        
-                    } else {
-
-                        $toon[] = $o + 1;
-                        echo ($ex[$i] . " " . "Online" . " " . $d . "/" . $m . "/" . $Y . " " . $h . ":" . $min . "น." . "<br>");
-                    }
-                }
+        for ($j = 0; $j < count($data) - 1; $j++) {
+            
+            
+                $updateResult = $sta->replaceOne(
+                ['Max' => $data[$j][0],],
+                [
+                    'Max' => $data[$j][0],
+                    'Apname' => $data[$j][1],
+                    'Status' => $data[$j][2],
+                    'd/m/y' => $data[$j][3],
+                    'time' => $data[$j][4],
+                    'ip' => $data[$j][5]
+                ]
+            );
+           
+        
                
-                for ($z = 0; $z < count($data); $z++) {
-                    $db = array($data[$z]['Max']);
-                    $result = array_diff($db, $ex,);
-                    if (($result[0] != null)) {
-                        $tooff[] = $f = $f + 1;
+            
 
-                        echo ($result[0]) . " " . $data[$z]['Apname'] . " " . "Offline" . " " . $d . "/" . $m . "/" . $Y . " " . $h . ":" . $min  . " ";
-                    }
-                }
-         
-        echo (end($toon) . " " . end($tooff));
+        }
+
+
+        return "success ";
     }
 }

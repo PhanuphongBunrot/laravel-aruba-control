@@ -28,18 +28,14 @@ class ViewonoffController extends Controller
         $response = Http::withHeaders([
             'Content-Type' => 'application/json;charset=UTF-8'
         ])
-            ->withOptions(["verify" => false])
-            //->get('http://127.0.0.1:8000/api/ping');
-            ->get('http://127.0.0.1:8000/api/apistatus');
+            ->withOptions(["verify" => false])           
+            ->get('http://127.0.0.1:8000/api/ping');
         $ex = explode(" ", $response);
 
 
-        //$data = array_chunk($ex, 5);        
+                
         $data = array_chunk($ex, 6);
-        // echo "<pre>";
-        // print_r($data);
-        // echo"</pre>";
-
+        
         for ($i = 0; $i < count($data) - 1; $i++) {
 
             if (count($sta_view) == 0) {

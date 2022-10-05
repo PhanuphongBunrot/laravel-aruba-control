@@ -29,7 +29,7 @@ class ViewonoffController extends Controller
             'Content-Type' => 'application/json;charset=UTF-8'
         ])
             ->withOptions(["verify" => false])           
-            ->get('http://127.0.0.1:8000/api/ping');
+            ->get('http://127.0.0.1:8000/api/apistatus');
         $ex = explode(" ", $response);
 
 

@@ -65,7 +65,7 @@ class ViewonoffController extends Controller
         for ($go = 0; $go <  count($arr_ip); $go++) {
 
             if ($str_arr[$go] != null) {
-                   
+                   echo $str_arr[$go]."===".$data[$go][0]."<br>";
              
                     $inser = $sta->insertMany([
                         [
@@ -108,3 +108,12 @@ class ViewonoffController extends Controller
         return "success ";
     }
 }
+
+
+
+
+
+
+
+
+

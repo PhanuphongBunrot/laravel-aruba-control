@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use MongoDB\Client as Mongo;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\Rules\In;
 
 class ViewonoffController extends Controller
 {
@@ -33,11 +35,12 @@ class ViewonoffController extends Controller
         $ex = explode(" ", $response);
 
 
-                
+        $arr_ip[] = 0;        
         $data = array_chunk($ex, 6);
+
         
         for ($i = 0; $i < count($data) - 1; $i++) {
-
+            $data_arr[] = $data[$i][0];
             if (count($sta_view) == 0) {
                 $inser = $sta->insertMany([
                     [
@@ -58,15 +61,19 @@ class ViewonoffController extends Controller
         for ($s = 0; $s < count($sta_view); $s++) {
             $arr_sta[]   =   $sta_view[$s]['Max'];
         }
-        
-        $str_arr = array_diff($arr_ip, $arr_sta);
-
+            if ($arr_sta != null){
+            $str_arr = array_diff($arr_ip, $arr_sta);
+            $inn = array_intersect($data_arr,$str_arr);
+    
+        }
+       
         
         for ($go = 0; $go <  count($arr_ip); $go++) {
 
-            if ($str_arr[$go] != null) {
-                   echo $str_arr[$go]."===".$data[$go][0]."<br>";
-             
+            if ( $inn[$go] != null) {
+                         
+                   echo $inn[$go]."===".$data[$go][0]."<br>";
+                    
                     $inser = $sta->insertMany([
                         [
                             'Max' => $data[$go][0],
@@ -87,7 +94,7 @@ class ViewonoffController extends Controller
             
             
                 $updateResult = $sta->replaceOne(
-                ['Max' => $data[$j][0],],
+                ['Max' => $data[$j][0] ],
                 [
                     'Max' => $data[$j][0],
                     'Apname' => $data[$j][1],
